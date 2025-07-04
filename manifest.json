@@ -1,0 +1,91 @@
+{
+  "dxt_version": "0.1",
+  "name": "ynab-mcp",
+  "display_name": "YNAB MCP",
+  "version": "1.0.0",
+  "description": "YNAB MCP Server",
+  "long_description": "YNAB operations MCP Server and Desktop Extension",
+  "author": {
+    "name": "Joaquin Gatica",
+    "email": "me@joaquingatica.com",
+    "url": "https://github.com/joaquingatica"
+  },
+  "homepage": "https://github.com/joaquingatica/ynab-mcp",
+  "documentation": "https://github.com/joaquingatica/ynab-mcp/blob/main/README.md",
+  "support": "https://github.com/joaquingatica/ynab-mcp/issues",
+  "icon": "icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.js"
+      ],
+      "env": {
+        "YNAB_ACCESS_TOKEN": "${user_config.ynab_access_token}",
+        "YNAB_BUDGET_ID_UYU": "${user_config.ynab_budget_id_uyu}",
+        "YNAB_BUDGET_ID_USD": "${user_config.ynab_budget_id_usd}",
+        "LOG_LEVEL": "${user_config.log_level}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "add_transaction",
+      "description": "Add transaction to account in budget"
+    }
+  ],
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=22.0.0"
+    }
+  },
+  "user_config": {
+    "ynab_access_token": {
+      "type": "string",
+      "title": "YNAB Access Token",
+      "description": "Personal Access Token for YNAB API",
+      "required": true,
+      "sensitive": true
+    },
+    "ynab_budget_id_uyu": {
+      "type": "string",
+      "title": "YNAB Budget ID for UYU",
+      "description": "YNAB Budget ID for all Uruguayan Pesos transactions",
+      "required": true,
+      "sensitive": false
+    },
+    "ynab_budget_id_usd": {
+      "type": "string",
+      "title": "YNAB Budget ID for USD",
+      "description": "YNAB Budget ID for all US Dollars transactions",
+      "required": true,
+      "sensitive": false
+    },
+    "log_level": {
+      "type": "string",
+      "title": "Log Level",
+      "description": "Log level for output (ALL, FATAL, ERROR, WARN, INFO, DEBUG, TRACE, OFF)",
+      "required": false,
+      "sensitive": false,
+      "default": "INFO"
+    }
+  },
+  "keywords": [
+    "ynab",
+    "api",
+    "mcp"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joaquingatica/ynab-mcp"
+  }
+}
