@@ -13,14 +13,14 @@
   "homepage": "https://github.com/joaquingatica/ynab-mcp",
   "documentation": "https://github.com/joaquingatica/ynab-mcp/blob/main/README.md",
   "support": "https://github.com/joaquingatica/ynab-mcp/issues",
-  "icon": "icon.png",
+  "icon": "assets/icon.png",
   "server": {
     "type": "node",
-    "entry_point": "server/index.js",
+    "entry_point": "dist/server.mjs",
     "mcp_config": {
       "command": "node",
       "args": [
-        "${__dirname}/server/index.js"
+        "${__dirname}/dist/server.mjs"
       ],
       "env": {
         "YNAB_ACCESS_TOKEN": "${user_config.ynab_access_token}",

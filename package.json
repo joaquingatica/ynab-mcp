@@ -18,8 +18,15 @@
     "url": "git+https://github.com/joaquingatica/ynab-mcp.git"
   },
   "type": "module",
-  "main": "server/index.js",
+  "main": "src/server.mts",
   "scripts": {
+    "check": "tsc --noEmit",
+    "pack": "./pack.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@anthropic-ai/dxt": "^0.2.0",
+    "@tsconfig/node22": "^22.0.2",
+    "typescript": "^5.8.3"
   }
 }
