@@ -1,0 +1,6 @@
+.direnv
+.idea
+assets
+bin
+build
+dist
