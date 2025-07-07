@@ -8,7 +8,7 @@ BIN_DIR="bin"
 # copy files to pack to dist folder
 
 mkdir -p "$DIST_DIR"
-cp -r {assets,build,manifest.json,package.json,package-lock.json} "$DIST_DIR"
+cp -r {assets,build,.dxtignore,manifest.json,package.json,package-lock.json} "$DIST_DIR"
 
 # clean package.json install runtime dependencies in dist folder
 
