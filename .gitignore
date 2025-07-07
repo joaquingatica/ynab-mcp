@@ -178,5 +178,7 @@ vite.config.ts.timestamp-*
 
 # === MCP and DXT ===
 
-*.dxt
+**/*.dxt
 bin
+build
+dist

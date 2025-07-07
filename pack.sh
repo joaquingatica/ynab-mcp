@@ -2,21 +2,21 @@
 
 # build ts project
 
-rm -rf dist
+rm -rf build
 tsc
 
-# copy to bin folder
+# copy to build folder
 
-rm -rf bin
-mkdir -p bin
-cp -r {assets,dist,manifest.json,package.json,package-lock.json} bin
+rm -rf dist
+mkdir -p dist
+cp -r {assets,build,manifest.json,package.json,package-lock.json} dist
 
-# prepare bin
+# prepare dist
 
-cd bin || exit 1
+cd dist || exit 1
 npm ci --omit dev
 
 # pack
 
 cd .. || exit 1
-dxt pack bin ynab.dxt
+dxt pack dist bin/ynab.dxt

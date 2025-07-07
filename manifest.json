@@ -16,12 +16,10 @@
   "icon": "assets/icon.png",
   "server": {
     "type": "node",
-    "entry_point": "dist/server.mjs",
+    "entry_point": "build/server.mjs",
     "mcp_config": {
       "command": "node",
-      "args": [
-        "${__dirname}/dist/server.mjs"
-      ],
+      "args": ["${__dirname}/build/server.mjs"],
       "env": {
         "YNAB_ACCESS_TOKEN": "${user_config.ynab_access_token}",
         "YNAB_BUDGET_ID_UYU": "${user_config.ynab_budget_id_uyu}",
@@ -38,11 +36,7 @@
   ],
   "compatibility": {
     "claude_desktop": ">=0.10.0",
-    "platforms": [
-      "darwin",
-      "win32",
-      "linux"
-    ],
+    "platforms": ["darwin", "win32", "linux"],
     "runtimes": {
       "node": ">=22.0.0"
     }
@@ -78,11 +72,7 @@
       "default": "INFO"
     }
   },
-  "keywords": [
-    "ynab",
-    "api",
-    "mcp"
-  ],
+  "keywords": ["ynab", "api", "mcp"],
   "license": "MIT",
   "repository": {
     "type": "git",
