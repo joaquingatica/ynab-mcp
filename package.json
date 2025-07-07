@@ -27,7 +27,8 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf bin build dist",
     "build": "tsc",
-    "pack": "npm run clean && npm run build && ./pack.sh",
+    "dxt:pack": "npm run clean && npm run build && ./pack.sh",
+    "dxt:validate": "dxt validate manifest.json",
     "prepare": "husky"
   },
   "devDependencies": {
