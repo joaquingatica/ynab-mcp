@@ -26,15 +26,25 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf bin build dist",
-    "build": "tsc",
+    "start": "npm run build && node build/server.mjs",
+    "build": "tsc -b tsconfig.build.json",
     "dxt:pack": "npm run clean && npm run build && ./pack.sh",
     "dxt:validate": "dxt validate manifest.json",
     "prepare": "husky"
+  },
+  "dependencies": {
+    "@effect/ai": "^0.21.14",
+    "@effect/platform": "^0.87.10",
+    "@effect/platform-node": "^0.89.2",
+    "effect": "^3.16.12",
+    "ynab": "^2.9.0"
   },
   "devDependencies": {
     "@anthropic-ai/dxt": "^0.2.0",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@effect/eslint-plugin": "^0.3.2",
+    "@effect/language-service": "^0.23.5",
     "@eslint/compat": "^1.3.1",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.30.1",

@@ -1,10 +1,10 @@
 {
   "dxt_version": "0.1",
   "name": "ynab-mcp",
-  "display_name": "YNAB MCP",
+  "display_name": "YNAB",
   "version": "1.0.0",
-  "description": "YNAB MCP Server",
-  "long_description": "YNAB operations MCP Server and Desktop Extension",
+  "description": "Fetch information and perform operations on your YNAB budgets.",
+  "long_description": "Manage data from your YNAB budgets, such as fetching available categories or creating transactions in them.",
   "author": {
     "name": "Joaquin Gatica",
     "email": "me@joaquingatica.com",
@@ -30,8 +30,8 @@
   },
   "tools": [
     {
-      "name": "add_transaction",
-      "description": "Add transaction to account in budget"
+      "name": "list_categories",
+      "description": "List available categories in a budget"
     }
   ],
   "compatibility": {
