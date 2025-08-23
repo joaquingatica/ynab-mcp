@@ -149,7 +149,7 @@ const YnabToolHandlers = YnabTools.toLayer(
         ),
     }
   }),
-).pipe(Layer.provide(Ynab.Default))
+)
 
 // Merge all the resources and prompts into a single server layer
 const ServerLayer = Layer.mergeAll(
@@ -157,6 +157,7 @@ const ServerLayer = Layer.mergeAll(
   HttpRouter.Default.serve(),
 ).pipe(
   Layer.provide(YnabToolHandlers),
+  Layer.provide(Ynab.Default),
   Layer.provide(
     McpServer.layerHttp({
       name: 'Demo Server',
