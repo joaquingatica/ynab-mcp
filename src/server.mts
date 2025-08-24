@@ -12,6 +12,9 @@ import {
 } from 'effect'
 import * as ynab from 'ynab'
 import { createServer } from 'node:http'
+import manifest from '../manifest.json' with { type: 'json' }
+
+const rootPath = '/mcp'
 
 const CurrencyCode = {
   UYU: 'UYU',
@@ -38,6 +41,8 @@ const LogLevelLive = Config.withDefault(
   Effect.andThen((level) => Logger.minimumLogLevel(level)),
   Layer.unwrapEffect,
 )
+
+const PortLive = Config.withDefault(Config.port('PORT'), 3000)
 
 class YnabApi extends Effect.Service<YnabApi>()('ListCategoriesService', {
   effect: Effect.gen(function* () {
@@ -151,6 +156,21 @@ const YnabToolHandlers = YnabTools.toLayer(
   }),
 )
 
+const NodeHttpServerLive = Effect.gen(function* () {
+  const port = yield* PortLive
+  return NodeHttpServer.layer(createServer, { port })
+}).pipe(
+  Effect.tap(() =>
+    Effect.gen(function* () {
+      const port = yield* PortLive
+      yield* Effect.logInfo(
+        `Server started on http://localhost:${port}${rootPath}`,
+      )
+    }),
+  ),
+  Layer.unwrapEffect,
+)
+
 // Merge all the resources and prompts into a single server layer
 const ServerLayer = Layer.mergeAll(
   McpServer.toolkit(YnabTools),
@@ -160,13 +180,14 @@ const ServerLayer = Layer.mergeAll(
   Layer.provide(Ynab.Default),
   Layer.provide(
     McpServer.layerHttp({
-      name: 'Demo Server',
-      version: '1.0.0',
-      path: '/mcp',
+      name: manifest.display_name,
+      version: manifest.version,
+      path: rootPath,
     }),
   ),
   Layer.provide(LogLevelLive),
-  Layer.provide(NodeHttpServer.layer(createServer, { port: 3000 })),
+  Layer.provide(NodeHttpServerLive),
+  Layer.tapError(Effect.logError),
 )
 
 Layer.launch(ServerLayer).pipe(NodeRuntime.runMain)
