@@ -1,40 +1,13 @@
-import { AiError, AiTool, AiToolkit, McpServer } from '@effect/ai'
-import { HttpRouter } from '@effect/platform'
-import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
-import {
-  Config,
-  Effect,
-  Layer,
-  Logger,
-  LogLevel,
-  Redacted,
-  Schema,
-} from 'effect'
-import * as ynab from 'ynab'
-import { createServer } from 'node:http'
-import manifest from '../manifest.json' with { type: 'json' }
+import { NodeRuntime } from '@effect/platform-node'
+import { Config, Effect, Layer, Logger, LogLevel } from 'effect'
 
-const rootPath = '/mcp'
+import { Ynab } from './ynab.mjs'
 
-const CurrencyCode = {
-  UYU: 'UYU',
-  USD: 'USD',
-} as const
-type CurrencyCode = (typeof CurrencyCode)[keyof typeof CurrencyCode]
-const CurrencyCodeSchema = Schema.Enums(CurrencyCode)
+import { YnabToolsLive } from './mcp/tools.mjs'
+import { YnabMcpServer, YnabMcpServerLive } from './mcp/server.mjs'
+import { HttpServer, HttpServerLive } from './http.mjs'
 
-const YnabConfigLive = Config.all({
-  accessToken: Config.redacted(Config.string('ACCESS_TOKEN')),
-  budgetIds: Config.nested(
-    Config.all({
-      [CurrencyCode.UYU]: Config.string('UYU'),
-      [CurrencyCode.USD]: Config.string('USD'),
-    }),
-    'BUDGET_ID',
-  ),
-}).pipe(Config.nested('YNAB'))
-
-const LogLevelLive = Config.withDefault(
+export const LogLevelLive = Config.withDefault(
   Config.logLevel('LOG_LEVEL'),
   LogLevel.Info,
 ).pipe(
@@ -42,151 +15,12 @@ const LogLevelLive = Config.withDefault(
   Layer.unwrapEffect,
 )
 
-const PortLive = Config.withDefault(Config.port('PORT'), 3000)
-
-class YnabApi extends Effect.Service<YnabApi>()('ListCategoriesService', {
-  effect: Effect.gen(function* () {
-    const { accessToken } = yield* YnabConfigLive
-    return new ynab.API(Redacted.value(accessToken))
-  }),
-}) {}
-
-class Category extends Schema.Class<Category>('Category')({
-  id: Schema.String,
-  name: Schema.String,
-  hidden: Schema.Boolean,
-  deleted: Schema.Boolean,
-}) {}
-
-class CategoryGroup extends Schema.Class<CategoryGroup>('CategoryGroup')({
-  id: Schema.String,
-  name: Schema.String,
-  hidden: Schema.Boolean,
-  deleted: Schema.Boolean,
-  categories: Schema.Array(Category),
-}) {}
-
-const isActiveCategory = ({
-  deleted,
-  hidden,
-}: {
-  deleted: boolean
-  hidden: boolean
-}) => !hidden && !deleted
-
-class GetCategoriesResponse extends Schema.Class<GetCategoriesResponse>(
-  'GetCategoriesResponse',
-)({
-  data: Schema.Struct({
-    category_groups: Schema.Array(CategoryGroup),
-  }),
-}) {}
-
-class Ynab extends Effect.Service<Ynab>()('Ynab', {
-  dependencies: [YnabApi.Default],
-
-  effect: Effect.gen(function* () {
-    const ynabApi = yield* YnabApi
-
-    const getCategories = Effect.fn('Ynab.getCategories')(function* (
-      currencyCode: CurrencyCode,
-    ) {
-      const { budgetIds } = yield* YnabConfigLive
-      const budgetId = budgetIds[currencyCode]
-      return yield* Effect.tryPromise(() =>
-        ynabApi.categories.getCategories(budgetId),
-      ).pipe(
-        Effect.map(Schema.decodeSync(GetCategoriesResponse)),
-        Effect.map((res) =>
-          res.data.category_groups
-            .filter(isActiveCategory)
-            .flatMap(({ categories }) =>
-              categories
-                .filter(isActiveCategory)
-                .map(({ id, name }) => ({ id, name })),
-            ),
-        ),
-        Effect.scoped,
-        Effect.orDie,
-      )
-    })
-
-    return {
-      getCategories,
-    } as const
-  }),
-}) {}
-
-const ListCategoriesTool = AiTool.make('list_categories', {
-  description: 'List available categories in a budget',
-  parameters: {
-    currencyCode: CurrencyCodeSchema.annotations({
-      description: 'The currency code that identifies the budget (UYU or USD)',
-    }),
-  },
-  success: Schema.Array(
-    Schema.Struct({
-      id: Schema.String,
-      name: Schema.String,
-    }),
-  ).annotations({
-    description: 'List of categories in the budget',
-  }),
-})
-
-class YnabTools extends AiToolkit.make(ListCategoriesTool) {}
-
-const YnabToolHandlers = YnabTools.toLayer(
-  Effect.gen(function* () {
-    const { getCategories } = yield* Ynab
-    return {
-      list_categories: ({ currencyCode }) =>
-        getCategories(currencyCode).pipe(
-          Effect.mapError(
-            (error) =>
-              new AiError.AiError({
-                description: 'Failed to list categories',
-                module: 'Ynab',
-                method: 'list_categories',
-                cause: error,
-              }),
-          ),
-        ),
-    }
-  }),
-)
-
-const NodeHttpServerLive = Effect.gen(function* () {
-  const port = yield* PortLive
-  return NodeHttpServer.layer(createServer, { port })
-}).pipe(
-  Effect.tap(() =>
-    Effect.gen(function* () {
-      const port = yield* PortLive
-      yield* Effect.logInfo(
-        `Server started on http://localhost:${port}${rootPath}`,
-      )
-    }),
-  ),
-  Layer.unwrapEffect,
-)
-
-// Merge all the resources and prompts into a single server layer
-const ServerLayer = Layer.mergeAll(
-  McpServer.toolkit(YnabTools),
-  HttpRouter.Default.serve(),
-).pipe(
-  Layer.provide(YnabToolHandlers),
+const ServerLayer = Layer.mergeAll(YnabMcpServer, HttpServer).pipe(
+  Layer.provide(YnabToolsLive),
   Layer.provide(Ynab.Default),
-  Layer.provide(
-    McpServer.layerHttp({
-      name: manifest.display_name,
-      version: manifest.version,
-      path: rootPath,
-    }),
-  ),
+  Layer.provide(YnabMcpServerLive),
   Layer.provide(LogLevelLive),
-  Layer.provide(NodeHttpServerLive),
+  Layer.provide(HttpServerLive),
   Layer.tapError(Effect.logError),
 )
 
