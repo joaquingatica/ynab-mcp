@@ -28,12 +28,10 @@
       }
     }
   },
-  "tools": [
-    {
-      "name": "list_categories",
-      "description": "List available categories in a budget"
-    }
-  ],
+  "tools": [],
+  "tools_generated": true,
+  "prompts": [],
+  "prompts_generated": true,
   "compatibility": {
     "claude_desktop": ">=0.10.0",
     "platforms": ["darwin", "win32", "linux"],
