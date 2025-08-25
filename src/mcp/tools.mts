@@ -14,6 +14,10 @@ const ListCategoriesTool = AiTool.make('list_categories', {
     Schema.Struct({
       id: Schema.String,
       name: Schema.String,
+      group: Schema.Struct({
+        id: Schema.String,
+        name: Schema.String,
+      }),
     }),
   ).annotations({
     description: 'List of categories in the budget',

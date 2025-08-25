@@ -77,10 +77,12 @@ export class Ynab extends Effect.Service<Ynab>()('Ynab', {
         Effect.map((res) =>
           res.data.category_groups
             .filter(isActiveCategory)
-            .flatMap(({ categories }) =>
-              categories
-                .filter(isActiveCategory)
-                .map(({ id, name }) => ({ id, name })),
+            .flatMap(({ categories, id: groupId, name: groupName }) =>
+              categories.filter(isActiveCategory).map(({ id, name }) => ({
+                id,
+                name,
+                group: { id: groupId, name: groupName },
+              })),
             ),
         ),
         Effect.scoped,
