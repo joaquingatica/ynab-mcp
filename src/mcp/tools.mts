@@ -1,4 +1,4 @@
-import { AiError, AiTool, AiToolkit } from '@effect/ai'
+import { AiError, AiTool, AiToolkit, McpServer } from '@effect/ai'
 import { CurrencyCodeSchema } from '../schema.mjs'
 import { Effect, Schema } from 'effect'
 import { Ynab } from '../ynab.mjs'
@@ -41,3 +41,5 @@ export const YnabToolsLive = YnabTools.toLayer(
     }
   }),
 )
+
+export const YnabMcpToolkit = McpServer.toolkit(YnabTools)

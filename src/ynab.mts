@@ -51,6 +51,14 @@ class GetCategoriesResponse extends Schema.Class<GetCategoriesResponse>(
   }),
 }) {}
 
+class GetCategoryByIdResponse extends Schema.Class<GetCategoryByIdResponse>(
+  'GetCategoryByIdResponse',
+)({
+  data: Schema.Struct({
+    category: Category,
+  }),
+}) {}
+
 export class Ynab extends Effect.Service<Ynab>()('Ynab', {
   dependencies: [YnabApi.Default],
 
@@ -80,8 +88,30 @@ export class Ynab extends Effect.Service<Ynab>()('Ynab', {
       )
     })
 
+    const getCategoryById = Effect.fn('Ynab.getCategoryById')(function* (
+      currencyCode: CurrencyCode,
+      categoryId: string,
+    ) {
+      const { budgetIds } = yield* YnabConfigLive
+      const budgetId = budgetIds[currencyCode]
+      return yield* Effect.tryPromise(() =>
+        ynabApi.categories.getCategoryById(budgetId, categoryId),
+      ).pipe(
+        Effect.map(Schema.decodeSync(GetCategoryByIdResponse)),
+        Effect.flatMap((response) =>
+          isActiveCategory(response.data.category)
+            ? Effect.succeed(response.data.category)
+            : Effect.fail(new Error('Category is inactive')),
+        ),
+        Effect.map(({ id, name }) => ({ id, name })),
+        Effect.scoped,
+        Effect.orDie,
+      )
+    })
+
     return {
       getCategories,
+      getCategoryById,
     } as const
   }),
 }) {}

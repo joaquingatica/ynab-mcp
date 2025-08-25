@@ -1,10 +1,17 @@
 import { McpServer } from '@effect/ai'
 import manifest from '../../manifest.json' with { type: 'json' }
-import { YnabTools } from './tools.mjs'
+import { YnabMcpToolkit } from './tools.mjs'
+import { Layer } from 'effect'
+import { YnabMcpResources } from './resources.mjs'
+import { YnabMcpPrompts } from './prompts.mjs'
 
 export const mcpPath = '/mcp'
 
-export const YnabMcpServer = McpServer.toolkit(YnabTools)
+export const YnabMcpServer = Layer.mergeAll(
+  YnabMcpPrompts,
+  YnabMcpResources,
+  YnabMcpToolkit,
+)
 
 export const YnabMcpServerLive = McpServer.layerHttp({
   name: manifest.display_name,
