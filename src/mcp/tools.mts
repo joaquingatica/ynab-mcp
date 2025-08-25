@@ -1,7 +1,9 @@
-import { AiError, AiTool, AiToolkit, McpServer } from '@effect/ai'
+import { AiTool, AiToolkit, McpServer } from '@effect/ai'
 import { CurrencyCodeSchema } from '../schema.mjs'
 import { Effect, Schema } from 'effect'
 import { Ynab } from '../ynab/service.mjs'
+import { NewTransactionInput } from '../ynab/transactions.mjs'
+import { parseYnabError } from './errors.js'
 
 const ListCategoriesTool = AiTool.make('list_categories', {
   description: 'List available categories in a budget',
@@ -24,23 +26,38 @@ const ListCategoriesTool = AiTool.make('list_categories', {
   }),
 })
 
-export class YnabTools extends AiToolkit.make(ListCategoriesTool) {}
+const CreateTransactionsTool = AiTool.make('create_transactions', {
+  description: 'Create transactions in a budget',
+  parameters: {
+    currencyCode: CurrencyCodeSchema.annotations({
+      description: 'The currency code that identifies the budget (UYU or USD)',
+    }),
+    transactions: Schema.Array(NewTransactionInput).annotations({
+      description: 'List of transactions to create',
+    }),
+  },
+  success: Schema.Array(Schema.String).annotations({
+    description: 'List of created transaction IDs',
+  }),
+})
+
+export class YnabTools extends AiToolkit.make(
+  ListCategoriesTool,
+  CreateTransactionsTool,
+) {}
 
 export const YnabToolsLive = YnabTools.toLayer(
   Effect.gen(function* () {
-    const { getCategories } = yield* Ynab
+    const { createTransactions, getCategories } = yield* Ynab
     return {
       list_categories: ({ currencyCode }) =>
         getCategories(currencyCode).pipe(
-          Effect.mapError(
-            (error) =>
-              new AiError.AiError({
-                description: 'Failed to list categories',
-                module: 'Ynab',
-                method: 'list_categories',
-                cause: error,
-              }),
-          ),
+          Effect.mapError(parseYnabError('list_categories')),
+        ),
+
+      create_transactions: ({ currencyCode, transactions }) =>
+        createTransactions(currencyCode, transactions).pipe(
+          Effect.mapError(parseYnabError('create_transactions')),
         ),
     }
   }),

@@ -23,7 +23,9 @@
       "env": {
         "YNAB_ACCESS_TOKEN": "${user_config.ynab_access_token}",
         "YNAB_BUDGET_ID_UYU": "${user_config.ynab_budget_id_uyu}",
+        "YNAB_ACCOUNT_ID_UYU": "${user_config.ynab_account_id_uyu}",
         "YNAB_BUDGET_ID_USD": "${user_config.ynab_budget_id_usd}",
+        "YNAB_ACCOUNT_ID_USD": "${user_config.ynab_account_id_usd}",
         "LOG_LEVEL": "${user_config.log_level}"
       }
     }
@@ -54,10 +56,24 @@
       "required": true,
       "sensitive": false
     },
+    "ynab_account_id_uyu": {
+      "type": "string",
+      "title": "YNAB main Account ID for UYU",
+      "description": "YNAB Account ID for the Uruguayan Pesos transactions' main account",
+      "required": true,
+      "sensitive": false
+    },
     "ynab_budget_id_usd": {
       "type": "string",
       "title": "YNAB Budget ID for USD",
       "description": "YNAB Budget ID for all US Dollars transactions",
+      "required": true,
+      "sensitive": false
+    },
+    "ynab_account_id_usd": {
+      "type": "string",
+      "title": "YNAB main Account ID for USD",
+      "description": "YNAB Account ID for the US Dollars transactions' main account",
       "required": true,
       "sensitive": false
     },

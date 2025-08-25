@@ -1,7 +1,7 @@
 import { Effect, Schema } from 'effect'
 import type { CurrencyCode } from '../schema.mjs'
 
-import { YnabApi, YnabConfigLive } from './api.mjs'
+import { YnabApi, YnabApiError, YnabConfigLive } from './api.mjs'
 
 class Category extends Schema.Class<Category>('Category')({
   id: Schema.String,
@@ -47,9 +47,14 @@ export class YnabCategories extends Effect.Service<YnabCategories>()(
       ) {
         const { budgetIds } = yield* YnabConfigLive
         const budgetId = budgetIds[currencyCode]
-        return yield* Effect.tryPromise(() =>
-          ynabApi.categories.getCategories(budgetId),
-        ).pipe(
+        return yield* Effect.tryPromise({
+          try: () => ynabApi.categories.getCategories(budgetId),
+          catch: (error) =>
+            new YnabApiError({
+              message: `[YNAB] Failed to fetch categories: ${JSON.stringify(error)}`,
+              cause: error,
+            }),
+        }).pipe(
           Effect.map(Schema.decodeSync(GetCategoriesResponse)),
           Effect.map((res) =>
             res.data.category_groups
@@ -63,7 +68,6 @@ export class YnabCategories extends Effect.Service<YnabCategories>()(
               ),
           ),
           Effect.scoped,
-          Effect.orDie,
         )
       })
 

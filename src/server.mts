@@ -25,6 +25,7 @@ const ServerLayer = Layer.mergeAll(YnabMcpServer, HttpServer).pipe(
   Layer.provide(YnabMcpServerHttp),
   Layer.provide(YnabMcpServerStdio),
   Layer.provide(LogLevelLive),
+  Layer.provide(Logger.add(Logger.prettyLogger({ stderr: true }))),
   Layer.provide(HttpServerLive),
   Layer.tapError(Effect.logError),
 )
