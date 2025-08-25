@@ -1,7 +1,7 @@
 import { AiError, AiTool, AiToolkit, McpServer } from '@effect/ai'
 import { CurrencyCodeSchema } from '../schema.mjs'
 import { Effect, Schema } from 'effect'
-import { Ynab } from '../ynab.mjs'
+import { Ynab } from '../ynab/service.mjs'
 
 const ListCategoriesTool = AiTool.make('list_categories', {
   description: 'List available categories in a budget',
