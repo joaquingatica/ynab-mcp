@@ -33,9 +33,12 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@effect/ai": "^0.33.2",
-    "@effect/platform": "^0.94.3",
-    "@effect/platform-node": "^0.104.1",
+    "@effect/ai": "^0.36.0",
+    "@effect/experimental": "^0.60.0",
+    "@effect/platform": "^0.96.1",
+    "@effect/platform-node": "^0.107.0",
+    "@effect/rpc": "^0.75.1",
+    "effect": "^3.21.3",
     "ynab": "^2.10.0"
   },
   "devDependencies": {
