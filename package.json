@@ -27,6 +27,7 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf bin build dist .tsbuildinfo",
     "start": "npm run build && node build/server.mjs",
+    "cli": "npm run build && node build/cli.mjs",
     "build": "tsc -b tsconfig.build.json",
     "dxt:pack": "npm run build && ./pack.sh",
     "dxt:validate": "dxt validate manifest.json",
@@ -34,6 +35,7 @@
   },
   "dependencies": {
     "@effect/ai": "^0.36.0",
+    "@effect/cli": "^0.75.2",
     "@effect/experimental": "^0.60.0",
     "@effect/platform": "^0.96.1",
     "@effect/platform-node": "^0.107.0",
