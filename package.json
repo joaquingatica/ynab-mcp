@@ -27,7 +27,7 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf bin build dist .tsbuildinfo",
     "start": "npm run build && node build/server.mjs",
-    "cli": "npm run build && node build/cli.mjs",
+    "cli": "node build/cli.mjs",
     "build": "tsc -b tsconfig.build.json",
     "dxt:pack": "npm run build && ./pack.sh",
     "dxt:validate": "dxt validate manifest.json",
